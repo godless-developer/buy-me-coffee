@@ -15,6 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { LoginTypes } from "../../../../utils/type";
 const formSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
@@ -86,7 +88,7 @@ export default function SignUsername({
                   type="submit"
                   className="w-full rounded-md bg-[#18181b]"
                 >
-                  Continue
+                  Submit
                 </Button>
               </form>
             </Form>

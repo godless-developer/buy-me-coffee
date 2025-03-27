@@ -14,8 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { LoginTypes } from "../../../../utils/type";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -30,7 +31,28 @@ export default function LoginBack() {
     },
   });
 
+  const [users, setUsers] = useState<LoginTypes[] | null>(null);
+  useEffect(() => {
+    fetch("/api/users")
+      .then((res) => res.json())
+      .then((json) => setUsers(json.data));
+  }, []);
+  console.log(users);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const checkemail = users?.find((item) => item.email !== values.email);
+    const checkpassword = users?.find(
+      (item) => item.password !== values.password
+    );
+    if (checkemail) {
+      alert("email buruu bnaa");
+      return;
+    }
+    if (checkpassword) {
+      alert("password buruu bna");
+      return;
+    }
+
     router.push("./userProfile");
     console.log(values);
   }
