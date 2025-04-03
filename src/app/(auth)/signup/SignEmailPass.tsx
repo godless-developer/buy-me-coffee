@@ -14,14 +14,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
-export default function SignEmailPass() {
-  const router = useRouter();
+export default function SignEmailPass({
+  signUp,
+}: {
+  signUp: (email: string, password: string) => void;
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -30,8 +31,10 @@ export default function SignEmailPass() {
     },
   });
 
+  const username = localStorage.getItem("username");
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    router.push("./login");
+    signUp(values.email, values.password);
     console.log(values);
   }
   return (
@@ -44,9 +47,14 @@ export default function SignEmailPass() {
       <div className="h-full w-full flex flex-col gap-4 justify-center items-center">
         <div>
           <div>
-            <h1 className="text-[#09090B] text-[24px] font-semibold">
-              Welcome , username123
-            </h1>
+            <div className="flex items-center  gap-2">
+              <h1 className="text-[#09090B] text-[24px] font-semibold">
+                Welcome ,
+              </h1>
+              <p className="text-[#09090B] text-[24px] font-semibold">
+                {username}
+              </p>
+            </div>
             <p className="text-[#71717a] text-[14px]">
               Connect email and set a password
             </p>

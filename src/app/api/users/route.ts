@@ -1,11 +1,15 @@
-import UserModel from "../../../../_back_end/model";
+import { NextResponse } from "next/server";
+import { runQuery } from "../../../utils/server/queryService";
 
-export const GET = async () => {
-  const user = await UserModel();
-  return new Response(JSON.stringify({ data: user }));
-};
-
-// export const POST = async (req: Request) => {
-//   const body = await req.json();
-//   return new Response(JSON.stringify({ message: "hgg", received: body }));
-// };
+export async function GET(): Promise<NextResponse> {
+  try {
+    const getUser = `SELECT username,password FROM "user"`;
+    const user = await runQuery(getUser);
+    return new NextResponse(JSON.stringify({ Users: user }));
+  } catch (err) {
+    console.error("Failed to run query:", err);
+    return new NextResponse(JSON.stringify({ error: "Failed to run query" }), {
+      status: 500,
+    });
+  }
+}

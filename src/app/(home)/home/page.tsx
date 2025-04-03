@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ProfileInfo from "./_components/ProfileInfo";
 import {
   Select,
   SelectContent,
@@ -9,10 +8,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Heart } from "lucide-react";
+import ProfileInfo from "./_components/ProfileInfo";
 
 export default function Home() {
   return (
-    <div className="bg-white text-black w-[100%] h-full">
+    <div className="bg-white text-black w-[100%] h-full pl-[350px]">
       <div className="flex justify-end px-32 gap-12 items-center py-4">
         <div className="flex items-center gap-2">
           <Avatar>
@@ -26,23 +26,25 @@ export default function Home() {
         </div>
       </div>
       <ProfileInfo />
-      <div className="flex justify-between px-30">
-        <p className="font-extrabold">Recent transactions</p>
-        <Select>
-          <SelectTrigger className="w-[110px]">
-            <SelectValue placeholder="Amount" />
-          </SelectTrigger>
-          <SelectContent className="text-black bg-white">
-            <SelectGroup>
-              <SelectItem value="$1">$1</SelectItem>
-              <SelectItem value="$2">$2</SelectItem>
-              <SelectItem value="$5">$5</SelectItem>
-              <SelectItem value="$10">$10</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+      <div className="bg-white w-[100%] text-black flex justify-center items-start">
+        <div className="flex justify-between px-30 w-full">
+          <p className="font-extrabold">Recent transactions</p>
+          <Select>
+            <SelectTrigger className="w-[110px]">
+              <SelectValue placeholder="Amount" />
+            </SelectTrigger>
+            <SelectContent className="text-black bg-white">
+              <SelectGroup>
+                <SelectItem value="$1">$1</SelectItem>
+                <SelectItem value="$2">$2</SelectItem>
+                <SelectItem value="$5">$5</SelectItem>
+                <SelectItem value="$10">$10</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <div className="bg-white w-[100%] text-black h-[809px] flex justify-center items-start pb-10 pt-4">
+      <div className="bg-white w-[100%] text-black h-[809px] flex justify-center items-start pt-4">
         <div className="w-[80%] border-[#b3b3b3]  border-[1px] rounded-lg flex flex-col gap-6 p-6">
           <div className="flex flex-col justify-around items-center gap-3">
             <div className="w-16 h-16 bg-[#f4f4f5] rounded-full flex justify-center items-center">

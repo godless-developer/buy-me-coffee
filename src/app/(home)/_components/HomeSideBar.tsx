@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HomeSideBar() {
   return (
-    <div className="w-[30%] pl-[80px] pr-8 bg-white h-screen text-black">
+    <div className="w-[300px] pl-[80px] pr-8 bg-white h-screen fixed text-black">
       <div className="w-full flex h-[100px] items-center gap-3">
         <Coffee size={26} strokeWidth={2.5} />
         <p className="text-[20px] font-bold">Buy Me Coffee</p>

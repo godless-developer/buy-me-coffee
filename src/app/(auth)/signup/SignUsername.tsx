@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
-import { LoginTypes } from "../../../../utils/type";
+import { LoginTypes } from "../../../utils/type";
 const formSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
@@ -26,10 +26,12 @@ const formSchema = z.object({
 interface SignProps {
   currentStep: any;
   setCurrentStep: (step: number) => void;
+  setSignUps: (username: string) => void;
 }
 export default function SignUsername({
   currentStep,
   setCurrentStep,
+  setSignUps,
 }: SignProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,6 +42,7 @@ export default function SignUsername({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setCurrentStep(currentStep + 1);
+    setSignUps(values.username);
     console.log(values);
   }
   return (

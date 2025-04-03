@@ -16,7 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LoginTypes } from "../../../../utils/type";
+import { LoginTypes } from "../../../utils/type";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useUser } from "@/app/_context/Users";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -30,45 +33,51 @@ export default function LoginBack() {
       password: "",
     },
   });
-
-  const [users, setUsers] = useState<LoginTypes[] | null>(null);
-  useEffect(() => {
-    fetch("/api/users")
-      .then((res) => res.json())
-      .then((json) => setUsers(json.data));
-  }, []);
-  console.log(users);
-
+  const username = localStorage.getItem("username");
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await fetch("/api/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+      if (response.status === 200) {
+        router.push("./userProfile");
+      } else {
+        toast("Event has been created.");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const checkemail = users?.find((item) => item.email !== values.email);
-    const checkpassword = users?.find(
-      (item) => item.password !== values.password
-    );
-    if (checkemail) {
-      alert("email buruu bnaa");
-      return;
-    }
-    if (checkpassword) {
-      alert("password buruu bna");
-      return;
-    }
-
-    router.push("./userProfile");
-    console.log(values);
+    login(values.email, values.password);
   }
+
   return (
     <div className="py-10 px-20 w-[100%] h-screen">
       <div className="flex justify-end">
-        <button className="bg-[#f4f4f5] text-black px-4 py-2 rounded-md">
-          Log in
-        </button>
+        <Link
+          href={"./signup"}
+          className="bg-[#f4f4f5] text-black px-4 py-2 rounded-md"
+        >
+          Sign up
+        </Link>
       </div>
       <div className="h-full w-full px-32 flex flex-col gap-4 justify-center items-center">
         <div>
-          <div>
+          <div className="flex items-center gap-2">
             <h1 className="text-[#09090B] text-[24px] font-semibold">
-              Welcome back
+              Welcome back ,
             </h1>
+            <p className="text-[#09090B] text-[24px] font-semibold">
+              {username}
+            </p>
           </div>
           <div className="w-[400px]">
             <Form {...form}>

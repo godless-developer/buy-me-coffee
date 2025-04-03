@@ -1,5 +1,5 @@
+import { Toaster } from "@/components/ui/sonner";
 import { AuthSideBar } from "./_AUTHcomponents/AuthSideBar";
-import SignUp from "./signup/page";
 
 export default function RootLayout({
   children,
@@ -10,6 +10,7 @@ export default function RootLayout({
     <div className="flex">
       <AuthSideBar />
       {children}
+      <Toaster />
     </div>
   );
 }
