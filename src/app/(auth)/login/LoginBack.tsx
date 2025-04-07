@@ -1,9 +1,8 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,11 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { LoginTypes } from "../../../utils/type";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useUser } from "@/app/_context/Users";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -36,23 +32,23 @@ export default function LoginBack() {
   const username = localStorage.getItem("username");
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch("/api/sign-in", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+      const response = await axios.post("/api/sign-in", {
+        email,
+        password,
       });
-      if (response.status === 200) {
-        router.push("./userProfile");
+      if (response.data.error) {
+        console.log("aldaa buruu kod", response);
       } else {
-        toast("Event has been created.");
+        router.push("./userProfile");
       }
     } catch (error) {
       console.log("error", error);
+      toast.error("Newtreh kod buruu bna", {
+        style: {
+          color: "red",
+          border: "1px solid red",
+        },
+      });
     }
   };
   function onSubmit(values: z.infer<typeof formSchema>) {

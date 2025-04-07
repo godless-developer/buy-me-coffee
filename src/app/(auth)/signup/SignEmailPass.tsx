@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -40,9 +41,12 @@ export default function SignEmailPass({
   return (
     <div className="py-10 px-20 w-[100%] h-screen">
       <div className="flex justify-end">
-        <button className="bg-[#f4f4f5] text-black px-4 py-2 rounded-md">
+        <Link
+          href={"./login"}
+          className="bg-[#f4f4f5] text-black px-4 py-2 rounded-md cursor-pointer"
+        >
           Log in
-        </button>
+        </Link>
       </div>
       <div className="h-full w-full flex flex-col gap-4 justify-center items-center">
         <div>

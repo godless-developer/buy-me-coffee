@@ -25,6 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera } from "lucide-react";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
+import { useUser } from "@/app/_context/Users";
+import { use, useEffect } from "react";
 
 // Personal Info form schema
 const personalInfoSchema = z.object({
@@ -141,6 +143,11 @@ export default function AccountPage() {
     // Handle form submission
   }
 
+  const { users, getUser } = useUser();
+  useEffect(() => {
+    getUser();
+  }, []);
+  console.log("users", users);
   return (
     <div className="container mx-auto py-6 space-y-6 max-w-3xl">
       <h1 className="text-2xl font-bold">My account</h1>

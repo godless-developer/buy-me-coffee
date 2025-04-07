@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import {
   createContext,
   ReactNode,
@@ -9,7 +10,7 @@ import {
 } from "react";
 
 type User = {
-  name: string;
+  username: string;
   email: string;
   id: string;
 };
@@ -34,26 +35,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const getUser = async () => {
     try {
-      const response = await fetch("/api/users", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const jsonData = await response.json();
-
-      if (jsonData.error) {
-        alert(jsonData.message);
+      const response = await axios.get("/api/users");
+      setUsers(response.data.Users || []); //
+      console.log("Usersfasdf:", response.data);
+      if (response.data.error) {
+        alert(response.data.message);
+        console.log("Error fetching users:", response.data.message);
         return;
       }
-
-      setUsers(jsonData.data || []); // Ensure it's always an array
-      console.log("Fetched users:", jsonData);
       console.log("Users state:", users);
     } catch (error) {
       console.error("Error fetching users:", error);

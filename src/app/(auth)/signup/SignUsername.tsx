@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { LoginTypes } from "../../../utils/type";
+import Link from "next/link";
 const formSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
@@ -48,9 +49,12 @@ export default function SignUsername({
   return (
     <div className="py-10 px-20 w-[100%] h-screen">
       <div className="flex justify-end">
-        <button className="bg-[#f4f4f5] text-black px-4 py-2 rounded-md">
+        <Link
+          href={"./login"}
+          className="bg-[#f4f4f5] text-black px-4 py-2 rounded-md cursor-pointer"
+        >
           Log in
-        </button>
+        </Link>
       </div>
       <div className="h-full w-full px-32 flex flex-col gap-4 justify-center items-center">
         <div>

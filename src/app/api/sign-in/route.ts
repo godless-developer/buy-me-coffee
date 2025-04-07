@@ -16,10 +16,13 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Failed to sign in" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: true, message: "Failed to sign in" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
 // import { NextResponse } from "next/server";

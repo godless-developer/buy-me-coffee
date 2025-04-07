@@ -10,9 +10,12 @@ export async function POST(req: Request): Promise<Response> {
       JSON.stringify({ user: users, message: "User created successfully" })
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Failed to create user" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: true, message: "Failed to create user" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
