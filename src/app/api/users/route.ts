@@ -3,7 +3,7 @@ import { runQuery } from "../../../utils/server/queryService";
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const getUser = `SELECT username,password FROM "user"`;
+    const getUser = `SELECT username,password,email FROM "user"`;
     const user = await runQuery(getUser);
 
     return new NextResponse(JSON.stringify({ Users: user }));

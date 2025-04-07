@@ -1,5 +1,4 @@
 "use client";
-import { useUser } from "@/app/_context/Users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
@@ -9,10 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect } from "react";
 
-export default function ProfileInfo() {
-  const username = localStorage.getItem("username");
+export default function ProfileInfo({userName}:any) {
+
   return (
     <div className="bg-white w-[100%] text-black h-[300px] flex justify-center items-center">
       <div className="w-[80%] border-[#b3b3b3] border-[1px] rounded-lg flex flex-col gap-6 p-6">
@@ -23,7 +21,7 @@ export default function ProfileInfo() {
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-bold">{username}</p>
+              <p className="font-bold">{userName}</p>
               <p className="text-[13px]">buymecoffee.com/baconpancakes1</p>
             </div>
           </div>

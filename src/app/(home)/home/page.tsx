@@ -1,3 +1,4 @@
+"use client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
@@ -9,8 +10,17 @@ import {
 } from "@/components/ui/select";
 import { Heart } from "lucide-react";
 import ProfileInfo from "./_components/ProfileInfo";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  // const username = localStorage.getItem("username");
+
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    setUsername(storedUsername);
+  }, []);
   return (
     <div className="bg-white text-black w-[100%] h-full pl-[350px]">
       <div className="flex justify-end px-32 gap-12 items-center py-4">
@@ -19,13 +29,13 @@ export default function Home() {
             <AvatarImage src="https://github.com/shadcn.png" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <p>Jake</p>
+          <p>{username}</p>
         </div>
         <div>
           <select name="" id=""></select>
         </div>
       </div>
-      <ProfileInfo />
+      <ProfileInfo userName={username} />
       <div className="bg-white w-[100%] text-black flex justify-center items-start">
         <div className="flex justify-between px-30 w-full">
           <p className="font-extrabold">Recent transactions</p>
