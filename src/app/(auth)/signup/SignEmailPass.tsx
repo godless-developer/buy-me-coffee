@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -32,7 +33,12 @@ export default function SignEmailPass({
     },
   });
 
-  const username = localStorage.getItem("username");
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    setUsername(storedUsername);
+  }, []);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     signUp(values.email, values.password);

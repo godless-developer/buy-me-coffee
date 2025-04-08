@@ -12,3 +12,15 @@ export type CreatorsTypes = {
   about: string;
   socialUrl: string;
 };
+export type Profile = {
+  id?: string;
+  name: string;
+  avatarImage?: string;
+  about: string;
+  socialMediaURL: string;
+  successMessage?: string;
+  backgroundImage?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};

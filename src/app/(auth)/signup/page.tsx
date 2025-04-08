@@ -3,6 +3,7 @@ import { useState } from "react";
 import SignEmailPass from "./SignEmailPass";
 import SignUsername from "./SignUsername";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function SignUp() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -14,16 +15,10 @@ export default function SignUp() {
   const router = useRouter();
   const signUp = async (email: string, password: string) => {
     try {
-      await fetch("/api/sign-up", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: signUps,
-          email: email,
-          password: password,
-        }),
+      await axios.post("/api/sign-up", {
+        email,
+        password,
+        username: signUps,
       });
       router.push("./login");
     } catch (error) {

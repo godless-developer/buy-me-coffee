@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -29,7 +30,13 @@ export default function LoginBack() {
       password: "",
     },
   });
-  const username = localStorage.getItem("username");
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    setUsername(storedUsername);
+  }, []);
+
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post("/api/sign-in", {
@@ -39,6 +46,8 @@ export default function LoginBack() {
       if (response.data.error) {
         console.log("aldaa buruu kod", response);
       } else {
+        console.log("success", response);
+        localStorage.setItem("userId", response.data.user.id);
         router.push("./userProfile");
       }
     } catch (error) {

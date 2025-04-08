@@ -3,6 +3,9 @@ import { runQuery } from "@/utils/server/queryService";
 export async function POST(req: Request): Promise<Response> {
   try {
     const { username, email, password } = await req.json();
+    // console.log("username", username);
+    // console.log("email", email);
+    // console.log("password", password);
 
     const createUser = `INSERT INTO "user" (username, email, password) VALUES ($1, $2, $3)`;
     const users = await runQuery(createUser, [username, email, password]);

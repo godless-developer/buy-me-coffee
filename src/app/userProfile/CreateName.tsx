@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -13,14 +14,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Camera, CircleX } from "lucide-react";
+import { Camera, CameraIcon, CircleX, ImageIcon, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Profile } from "@/utils/type";
+import Image from "next/image";
 const formSchema = z.object({
   image: z.string(),
   name: z.string().nonempty("Please enter name"),
-  text: z.string().min(8, "Please enter info about yourself"),
-  url: z.string().min(8, "Please enter a social link"),
+  about: z.string().min(8, "Please enter info about yourself"),
+  socialMediaURL: z.string().min(8, "Please enter a social link"),
 });
 
 interface CreateProps {
@@ -37,14 +40,97 @@ export default function CreateName({
     defaultValues: {
       image: "",
       name: "",
-      text: "",
-      url: "",
+      about: "",
+      socialMediaURL: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const [file, setFile] = React.useState<File | null>(null);
+  const [avatarImg, setAvatarImg] = React.useState<string | null>(null);
+  const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
+  const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  const uploadImage = async (file: File | null) => {
+    if (!file) {
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const result = await response.json();
+      return result.secure_url;
+    } catch (error: unknown) {
+      return { error: "failed to upload image" };
+    }
+  };
+
+  const createProfile = async ({ values }: { values: Profile }) => {
+    const imageUrl = await uploadImage(file);
+
+    const response = await fetch("/api/profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        avatarImage: imageUrl,
+        name: values.name,
+        about: values.about,
+        socialMediaURL: values.socialMediaURL,
+        userId: localStorage.getItem("userId"),
+      }),
+    });
+    if (!response.ok) {
+      console.error("Failed to create profile");
+      return;
+    }
+    const data = await response.json();
+    if (data.error) {
+      console.error("Failed to create profile:", data.message);
+      return;
+    }
+    const { profile, userId } = data;
     setCurrentStep(currentStep + 1);
+    console.log("Profile created successfully:", profile);
+    console.log("User ID:", userId);
+    if (imageUrl) {
+      console.log("Image uploaded successfully:", imageUrl);
+      form.setValue("image", imageUrl);
+    } else {
+      console.error("Failed to upload image");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+
+    if (!file) {
+      return;
+    }
+
+    setFile(file);
+
+    const temImageUrl = URL.createObjectURL(file);
+    setAvatarImg(temImageUrl);
+    form.setValue("image", "uploaded");
+  };
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    createProfile({ values });
+    console.log("Form submitted:", values);
+    console.log("File:", file);
+    console.log("Avatar Image:", avatarImg);
   }
   return (
     <div className="text-black h-full flex justify-center items-start pt-40">
@@ -64,23 +150,34 @@ export default function CreateName({
                       Add photo
                     </FormLabel>
                     <FormControl>
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <Label
-                            htmlFor="file-input"
-                            className="rounded-full w-[220px] h-[220px] flex flex-col justify-center items-center cursor-pointer border-[1px] border-gray border-dashed "
-                          >
-                            <Input hidden type="file" id="file-input" />
-                            <div className="flex flex-col justify-center items-center gap-2">
-                              <Camera
-                                size={30}
-                                strokeWidth={1.4}
-                                color="gray"
-                              />
-                            </div>
-                          </Label>
+                      {avatarImg ? (
+                        <div className="h-[230px] w-[230px] relative rounded-full">
+                          <div className="h-[138px]">
+                            <Image
+                              alt="file-input"
+                              src={avatarImg}
+                              width={1000}
+                              height={1000}
+                              className={
+                                "size-full object-cover rounded-full h-[230px] w-[230px] border border-dashed border-blue-500/20 bg-blue-500/5 bg-cover bg-no-repeat bg-center"
+                              }
+                            />
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <label
+                          htmlFor="file-input"
+                          className={`flex flex-col h-[230px] w-[230px] items-center justify-center cursor-pointer gap-2 p-4 rounded-full border border-dashed border-[#bc6c25] bg-[#fefae0]`}
+                        >
+                          <CameraIcon />
+                          <Input
+                            id="file-input"
+                            type="file"
+                            onChange={handleChange}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -107,7 +204,7 @@ export default function CreateName({
               />
               <FormField
                 control={form.control}
-                name="text"
+                name="about"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] text-black font-semibold">
@@ -126,7 +223,7 @@ export default function CreateName({
               />
               <FormField
                 control={form.control}
-                name="url"
+                name="socialMediaURL"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[14px] text-black font-semibold">
