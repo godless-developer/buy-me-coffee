@@ -43,15 +43,16 @@ export default function LoginBack() {
         email,
         password,
       });
+      console.log(response);
+      console.log(response.data);
+      console.log(response.data.user);
       if (response.data.error) {
-        console.log("aldaa buruu kod", response);
       } else {
-        console.log("success", response);
         localStorage.setItem("userId", response.data.user.id);
+        console.log(response.data.user.id);
         router.push("./userProfile");
       }
     } catch (error) {
-      console.log("error", error);
       toast.error("Newtreh kod buruu bna", {
         style: {
           color: "red",

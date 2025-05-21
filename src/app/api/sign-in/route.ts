@@ -2,7 +2,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const { email, password } = await req.json();
 
-    const getUser = `SELECT email,password,id FROM "user" WHERE email = $1 AND password = $2`;
+    const getUser = `SELECT email,password , id FROM "user" WHERE email = $1 AND password = $2`;
     const user = await runQuery(getUser, [email, password]);
 
     if (user.length > 0) {

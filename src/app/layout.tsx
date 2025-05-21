@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { User } from "lucide-react";
 import UserProvider from "./_context/Users";
+import ProfilePaidProvider from "./_context/Paid";
+import ProfileProvider from "./_context/Profile";
+import { OneProfileProvider } from "./_context/OneProfile";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased container mx-auto bg-white text-black dark:bg-black dark:text-white`}
       >
-        <UserProvider>{children}</UserProvider>
+        <OneProfileProvider>
+          <ProfileProvider>
+            <ProfilePaidProvider>
+              <UserProvider>{children}</UserProvider>
+            </ProfilePaidProvider>
+          </ProfileProvider>
+        </OneProfileProvider>
       </body>
     </html>
   );

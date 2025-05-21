@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -26,9 +27,11 @@ import { Camera } from "lucide-react";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { useUser } from "@/app/_context/Users";
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
+import { useProfilePaid } from "@/app/_context/Paid";
+import { useProfile } from "@/app/_context/Profile";
+import { get } from "http";
 
-// Personal Info form schema
 const personalInfoSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   about: z.string().optional(),
@@ -39,7 +42,6 @@ const personalInfoSchema = z.object({
     .or(z.literal("")),
 });
 
-// Password form schema
 const passwordSchema = z
   .object({
     newPassword: z
@@ -54,7 +56,6 @@ const passwordSchema = z
     path: ["confirmPassword"],
   });
 
-// Payment details form schema
 const paymentSchema = z.object({
   country: z.string(),
   firstName: z
@@ -71,7 +72,6 @@ const paymentSchema = z.object({
   cvc: z.string().min(3, { message: "CVC must be at least 3 digits." }),
 });
 
-// Success page form schema
 const successSchema = z.object({
   confirmationMessage: z
     .string()
@@ -79,18 +79,22 @@ const successSchema = z.object({
 });
 
 export default function AccountPage() {
-  // Personal Info form
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("userId");
+    setUserId(storedId);
+  }, []);
+
   const personalInfoForm = useForm<z.infer<typeof personalInfoSchema>>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      name: "Jake",
-      about:
-        "I'm a typical person who enjoys exploring different things. I also make music art as a hobby. Follow me along.",
-      socialUrl: "https://buymeacoffee.com/baconpancakes1",
+      name: "",
+      about: "",
+      socialUrl: "",
     },
   });
 
-  // Password form
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
@@ -99,21 +103,19 @@ export default function AccountPage() {
     },
   });
 
-  // Payment details form
   const paymentForm = useForm<z.infer<typeof paymentSchema>>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      country: "us",
-      firstName: "Jake",
-      lastName: "Mulligan",
-      cardNumber: "XXXX-XXXX-XXXX-XXXX",
-      expiryMonth: "august",
-      expiryYear: "2028",
-      cvc: "590",
+      country: "",
+      firstName: "",
+      lastName: "",
+      cardNumber: "",
+      expiryMonth: "",
+      expiryYear: "",
+      cvc: "",
     },
   });
 
-  // Success page form
   const successForm = useForm<z.infer<typeof successSchema>>({
     resolver: zodResolver(successSchema),
     defaultValues: {
@@ -122,37 +124,64 @@ export default function AccountPage() {
     },
   });
 
-  // Form submission handlers
+  const { profileInfo, getProfileInfo } = useProfile();
+  const { profile, getProfile } = useProfilePaid();
+
+  useEffect(() => {
+    if (userId) {
+      getProfileInfo(userId);
+      getProfile(userId);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (profileInfo) {
+      personalInfoForm.reset({
+        name: profileInfo.name || "",
+        about: profileInfo.about || "",
+        socialUrl: profileInfo.socialMediaURL || "",
+      });
+    }
+    if (profile) {
+      paymentForm.reset({
+        country: profile.country || "",
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        cardNumber: profile.cardNumber || "",
+        expiryMonth: profile.expireMonth || "",
+        expiryYear: profile.expireYear || "",
+        cvc: profile.cvc || "",
+      });
+    }
+  }, [profileInfo, profile]);
+
   function onPersonalInfoSubmit(values: z.infer<typeof personalInfoSchema>) {
     console.log(values);
-    // Handle form submission
   }
 
   function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
     console.log(values);
-    // Handle form submission
   }
 
   function onPaymentSubmit(values: z.infer<typeof paymentSchema>) {
     console.log(values);
-    // Handle form submission
   }
 
   function onSuccessSubmit(values: z.infer<typeof successSchema>) {
     console.log(values);
-    // Handle form submission
   }
 
   const { users, getUser } = useUser();
   useEffect(() => {
     getUser();
   }, []);
+
   console.log("users", users);
   return (
     <div className="container mx-auto py-6 space-y-6 max-w-3xl">
       <h1 className="text-2xl font-bold">My account</h1>
 
-      <Card className="hover:transform  hover:-translate-x-10 duration-300 ease-in-out">
+      <Card className="hover:transform  hover:scale-105 duration-300 ease-in-out">
         <CardHeader>
           <CardTitle>Personal Info</CardTitle>
         </CardHeader>
@@ -229,7 +258,7 @@ export default function AccountPage() {
         </CardContent>
       </Card>
 
-      <Card className="hover:transform  hover:-translate-x-10 duration-300 ease-in-out">
+      <Card className="hover:transform  hover:scale-105 duration-300 ease-in-out">
         <CardHeader>
           <CardTitle>Set a new password</CardTitle>
         </CardHeader>
@@ -283,7 +312,7 @@ export default function AccountPage() {
         </CardContent>
       </Card>
 
-      <Card className="hover:transform  hover:-translate-x-10 duration-300 ease-in-out">
+      <Card className="hover:transform  hover:scale-105 duration-300 ease-in-out">
         <CardHeader>
           <CardTitle>Payment details</CardTitle>
         </CardHeader>
@@ -299,20 +328,26 @@ export default function AccountPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Select country</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select country" />
+                          <SelectValue placeholder={profile?.country} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="ca">Canada</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="au">Australia</SelectItem>
+                        <SelectGroup>
+                          <SelectItem value="United States">
+                            United States
+                          </SelectItem>
+                          <SelectItem value="Australia">Australia</SelectItem>
+                          <SelectItem value="Mongolia">Mongolia</SelectItem>
+                          <SelectItem value="New Zealand">
+                            New Zealand
+                          </SelectItem>
+                          <SelectItem value="United Kingdom">
+                            United Kingdom
+                          </SelectItem>
+                        </SelectGroup>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -373,7 +408,7 @@ export default function AccountPage() {
                       <FormLabel>Expires</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -381,9 +416,16 @@ export default function AccountPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="august">August</SelectItem>
-                          <SelectItem value="september">September</SelectItem>
-                          <SelectItem value="october">October</SelectItem>
+                          <SelectGroup>
+                            {Array.from(
+                              { length: 12 },
+                              (_, index) => index + 1
+                            ).map((item) => (
+                              <SelectItem key={item} value={String(item)}>
+                                {item} сар
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -399,7 +441,7 @@ export default function AccountPage() {
                       <FormLabel>Year</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -407,11 +449,16 @@ export default function AccountPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="2024">2024</SelectItem>
-                          <SelectItem value="2025">2025</SelectItem>
-                          <SelectItem value="2026">2026</SelectItem>
-                          <SelectItem value="2027">2027</SelectItem>
-                          <SelectItem value="2028">2028</SelectItem>
+                          <SelectGroup>
+                            {Array.from(
+                              { length: 120 },
+                              (_, index) => index + 1950
+                            ).map((item) => (
+                              <SelectItem key={item} value={String(item)}>
+                                {item} он
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -441,7 +488,7 @@ export default function AccountPage() {
         </CardContent>
       </Card>
 
-      <Card className="hover:transform  hover:-translate-x-10 duration-300 ease-in-out">
+      <Card className="hover:transform  hover:scale-105 duration-300 ease-in-out">
         <CardHeader>
           <CardTitle>Success page</CardTitle>
         </CardHeader>

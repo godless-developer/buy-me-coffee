@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { ProfilePaid } from "@/utils/type";
 const formSchema = z.object({
   select: z.string(),
   Fname: z.string().nonempty("First name must match"),
@@ -49,8 +50,50 @@ export default function CreatePaid() {
     },
   });
 
+  const createProfile = async ({ values }: { values: ProfilePaid }) => {
+    const response = await fetch("/api/profilePaid", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        country: values.country,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        cardNumber: values.cardNumber,
+        expireMonth: values.expireMonth,
+        expireYear: values.expireYear,
+        cvc: values.cvc,
+        userId: localStorage.getItem("userId"),
+      }),
+    });
+    if (!response.ok) {
+      console.error("Failed to create profile");
+      return;
+    }
+    const data = await response.json();
+    if (data.error) {
+      console.error("Failed to create profile:", data.message);
+      return;
+    }
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    router.push("./home");
+    const mappedValues: ProfilePaid = {
+      id: "",
+      country: values.select,
+      firstName: values.Fname,
+      lastName: values.Lname,
+      cardNumber: values.card,
+      expireMonth: values.expires,
+      expireYear: values.year,
+      cvc: values.cvc,
+      userId: localStorage.getItem("userId") || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    createProfile({ values: mappedValues });
+    router.push("./");
     console.log(values);
   }
   return (
@@ -76,17 +119,24 @@ export default function CreatePaid() {
                       Select country
                     </FormLabel>
                     <FormControl>
-                      <Select>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent className="text-black bg-white">
                           <SelectGroup>
-                            <SelectItem value="apple">United States</SelectItem>
-                            <SelectItem value="banana">Australia</SelectItem>
-                            <SelectItem value="blueberry">Mongolia</SelectItem>
-                            <SelectItem value="grapes">New Zealand</SelectItem>
-                            <SelectItem value="pineapple">
+                            <SelectItem value="United States">
+                              United States
+                            </SelectItem>
+                            <SelectItem value="Australia">Australia</SelectItem>
+                            <SelectItem value="Mongolia">Mongolia</SelectItem>
+                            <SelectItem value="New Zealand">
+                              New Zealand
+                            </SelectItem>
+                            <SelectItem value="United Kingdom">
                               United Kingdom
                             </SelectItem>
                           </SelectGroup>
@@ -97,6 +147,7 @@ export default function CreatePaid() {
                   </FormItem>
                 )}
               />
+
               <div className="flex w-[100%] gap-[4%]">
                 <FormField
                   control={form.control}
@@ -166,7 +217,10 @@ export default function CreatePaid() {
                         Expires
                       </FormLabel>
                       <FormControl>
-                        <Select>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Month" />
                           </SelectTrigger>
@@ -177,7 +231,7 @@ export default function CreatePaid() {
                                 (_, index) => index + 1
                               ).map((item) => (
                                 <SelectItem key={item} value={String(item)}>
-                                  {item} sar
+                                  {item} сар
                                 </SelectItem>
                               ))}
                             </SelectGroup>
@@ -188,6 +242,7 @@ export default function CreatePaid() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="year"
@@ -197,7 +252,10 @@ export default function CreatePaid() {
                         Year
                       </FormLabel>
                       <FormControl>
-                        <Select>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Year" />
                           </SelectTrigger>
@@ -208,7 +266,7 @@ export default function CreatePaid() {
                                 (_, index) => index + 1950
                               ).map((item) => (
                                 <SelectItem key={item} value={String(item)}>
-                                  {item} on
+                                  {item} он
                                 </SelectItem>
                               ))}
                             </SelectGroup>
@@ -219,6 +277,7 @@ export default function CreatePaid() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="cvc"

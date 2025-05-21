@@ -42,7 +42,6 @@ export default function SignEmailPass({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     signUp(values.email, values.password);
-    console.log(values);
   }
   return (
     <div className="py-10 px-20 w-[100%] h-screen">

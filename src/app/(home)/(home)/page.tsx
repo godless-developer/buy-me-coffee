@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
@@ -11,31 +11,39 @@ import {
 import { Heart } from "lucide-react";
 import ProfileInfo from "./_components/ProfileInfo";
 import { useEffect, useState } from "react";
+import { useProfilePaid } from "@/app/_context/Paid";
+import { useProfile } from "@/app/_context/Profile";
+import AvatarHead from "../_components/AvatarHead";
 
 export default function Home() {
-  // const username = localStorage.getItem("username");
-
+  const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    setUsername(storedUsername);
+    const username = localStorage.getItem("username");
+    const storedId = localStorage.getItem("userId");
+    setUserId(storedId);
+    setUsername(username);
   }, []);
+
+  const { profile, getProfile } = useProfilePaid();
+  const { profileInfo, getProfileInfo } = useProfile();
+
+  useEffect(() => {
+    if (userId) {
+      getProfile(userId);
+      getProfileInfo(userId);
+    }
+  }, [userId]);
+
   return (
     <div className="bg-white text-black w-[100%] h-full pl-[350px]">
-      <div className="flex justify-end px-32 gap-12 items-center py-4">
-        <div className="flex items-center gap-2">
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          <p>{username}</p>
-        </div>
-        <div>
-          <select name="" id=""></select>
-        </div>
-      </div>
-      <ProfileInfo userName={username} />
+      <AvatarHead />
+      <ProfileInfo
+        userName={username}
+        avatarImage={profileInfo?.avatarImage}
+        socialMediaURL={profileInfo?.socialMediaURL}
+      />
       <div className="bg-white w-[100%] text-black flex justify-center items-start">
         <div className="flex justify-between px-30 w-full">
           <p className="font-extrabold">Recent transactions</p>

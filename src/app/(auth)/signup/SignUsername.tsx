@@ -1,4 +1,3 @@
-"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,15 +7,12 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-import { LoginTypes } from "../../../utils/type";
 import Link from "next/link";
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -44,7 +40,6 @@ export default function SignUsername({
   function onSubmit(values: z.infer<typeof formSchema>) {
     setCurrentStep(currentStep + 1);
     setSignUps(values.username);
-    console.log(values);
   }
   return (
     <div className="py-10 px-20 w-[100%] h-screen">

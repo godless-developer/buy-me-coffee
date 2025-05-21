@@ -13,11 +13,14 @@ type User = {
   username: string;
   email: string;
   id: string;
+  name?: string;
+  about?: string;
+  avatarImage?: string;
+  socialMediaURL?: string;
 };
-
 type UserContextType = {
   users: User[];
-  getUser: any; // Ensures it's always an array
+  getUser: any;
 };
 
 const userContext = createContext<UserContextType | undefined>(undefined);
@@ -31,19 +34,13 @@ export const useUser = () => {
 };
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [users, setUsers] = useState<User[]>([]); // Default to empty array
+  const [users, setUsers] = useState<User[]>([]);
 
   const getUser = async () => {
     try {
       const response = await axios.get("/api/users");
-      setUsers(response.data.Users || []); //
-      console.log("Usersfasdf:", response.data);
-      if (response.data.error) {
-        alert(response.data.message);
-        console.log("Error fetching users:", response.data.message);
-        return;
-      }
-      console.log("Users state:", users);
+      const usersData = response.data.Users || [];
+      setUsers(usersData);
     } catch (error) {
       console.error("Error fetching users:", error);
       alert("Error in getting user");

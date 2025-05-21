@@ -14,11 +14,37 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Camera, CameraIcon, CircleX, ImageIcon, X } from "lucide-react";
+import { CameraIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Profile } from "@/utils/type";
 import Image from "next/image";
+
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
+
+const uploadImage = async (file: File | null) => {
+  if (!file) {
+    return null;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", UPLOAD_PRESET);
+
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    const result = await response.json();
+    return result.secure_url;
+  } catch (error: unknown) {
+    return { error: "failed to upload image" };
+  }
+};
 const formSchema = z.object({
   image: z.string(),
   name: z.string().nonempty("Please enter name"),
@@ -35,6 +61,9 @@ export default function CreateName({
   currentStep,
   setCurrentStep,
 }: CreateProps) {
+  const [file, setFile] = React.useState<File | null>(null);
+  const [avatarImage, setAvatarImage] = React.useState<string | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,37 +74,19 @@ export default function CreateName({
     },
   });
 
-  const [file, setFile] = React.useState<File | null>(null);
-  const [avatarImg, setAvatarImg] = React.useState<string | null>(null);
-  const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
-  const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
 
-  const uploadImage = async (file: File | null) => {
-    if (!file) {
-      return null;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", UPLOAD_PRESET);
-
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const result = await response.json();
-      return result.secure_url;
-    } catch (error: unknown) {
-      return { error: "failed to upload image" };
+    if (file) {
+      setFile(file);
+      setAvatarImage(URL.createObjectURL(file));
     }
   };
 
   const createProfile = async ({ values }: { values: Profile }) => {
     const imageUrl = await uploadImage(file);
+    console.log("Image URL:", imageUrl);
+    console.log("avatarImage:", avatarImage);
 
     const response = await fetch("/api/profile", {
       method: "POST",
@@ -90,6 +101,8 @@ export default function CreateName({
         userId: localStorage.getItem("userId"),
       }),
     });
+    console.log("Response:", response);
+    console.log("userId:", localStorage.getItem("userId"));
     if (!response.ok) {
       console.error("Failed to create profile");
       return;
@@ -99,38 +112,21 @@ export default function CreateName({
       console.error("Failed to create profile:", data.message);
       return;
     }
-    const { profile, userId } = data;
     setCurrentStep(currentStep + 1);
-    console.log("Profile created successfully:", profile);
-    console.log("User ID:", userId);
     if (imageUrl) {
-      console.log("Image uploaded successfully:", imageUrl);
       form.setValue("image", imageUrl);
-    } else {
-      console.error("Failed to upload image");
     }
   };
+  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null;
-
-    if (!file) {
-      return;
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && imageUrl) {
+      localStorage.setItem("avatarImage", imageUrl);
     }
-
-    setFile(file);
-
-    const temImageUrl = URL.createObjectURL(file);
-    setAvatarImg(temImageUrl);
-    form.setValue("image", "uploaded");
-  };
+  }, [imageUrl]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     createProfile({ values });
-    console.log("Form submitted:", values);
-    console.log("File:", file);
-    console.log("Avatar Image:", avatarImg);
   }
   return (
     <div className="text-black h-full flex justify-center items-start pt-40">
@@ -150,12 +146,12 @@ export default function CreateName({
                       Add photo
                     </FormLabel>
                     <FormControl>
-                      {avatarImg ? (
+                      {avatarImage ? (
                         <div className="h-[230px] w-[230px] relative rounded-full">
                           <div className="h-[138px]">
                             <Image
                               alt="file-input"
-                              src={avatarImg}
+                              src={avatarImage}
                               width={1000}
                               height={1000}
                               className={

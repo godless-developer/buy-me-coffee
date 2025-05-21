@@ -22,7 +22,6 @@ export default function SignUp() {
       });
       router.push("./login");
     } catch (error) {
-      console.log("error", error);
       alert("error in getting user");
     }
   };

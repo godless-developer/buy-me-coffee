@@ -13,45 +13,52 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import Image from "next/image";
 
 const formSchema = z.object({
-  image: z.string().nonempty("Username must be at least 2 characters."),
+  coverImg: z.string(),
 });
-export default function CoverImage() {
+export default function CoverImage({ coverImg }: { coverImg: string }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      image: "",
+      coverImg: coverImg,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
   }
+  console.log(coverImg);
   return (
     <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="image"
+            name="coverImg"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[14px] text-black font-semibold"></FormLabel>
+                <FormLabel className="text-[14px] text-black font-semibold">
+                  Add photo
+                </FormLabel>
                 <FormControl>
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <Label
-                        htmlFor="file-input"
-                        className="w-full h-[442px] flex flex-col justify-center items-center cursor-pointer border-[1px] border-gray border-dashed "
-                      >
-                        <Input hidden type="file" id="file-input" />
-                        <div className="flex bg-black text-white px-3 py-1 rounded-lg justify-center items-center gap-2">
-                          <Camera size={30} strokeWidth={1.4} color="gray" />
-                          <p>Add a cover image</p>
-                        </div>
-                      </Label>
-                    </div>
+                  <div className="h-[430px] w-full relative">
+                    {coverImg ? (
+                      <Image
+                        alt="file-input"
+                        src={coverImg}
+                        width={1000}
+                        height={1000}
+                        className={
+                          "size-full object-cover h-[430px] w-full border border-dashed border-blue-500/20 bg-blue-500/5  bg-no-repeat bg-center"
+                        }
+                      />
+                    ) : (
+                      <p className="absolute inset-0 top-40 left-[] text-black z-20">
+                        Upload a cover image
+                      </p>
+                    )}
                   </div>
                 </FormControl>
                 <FormMessage />
